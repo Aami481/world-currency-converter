@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Currency Converter</title>
+<style>
+:root{--card:rgba(255,255,255,.93);--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--chip:#f1f5f9;--res:#ecfdf5;--acc:#059669;--acc2:#0d9488;--pop:#fff}
+@media(prefers-color-scheme:dark){:root{--card:rgba(15,23,42,.85);--ink:#f1f5f9;--mut:#94a3b8;--line:#334155;--chip:#1e293b;--res:#0b2e2a;--pop:#0f172a}}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;display:grid;place-items:center;padding:24px 14px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 10%,#0d9488 0,transparent 40%),radial-gradient(circle at 85% 90%,#6366f1 0,transparent 45%),#0f172a}
+.card{width:100%;max-width:520px;background:var(--card);backdrop-filter:blur(14px);border-radius:24px;padding:28px;box-shadow:0 25px 60px rgba(0,0,0,.35)}
+header{text-align:center;margin-bottom:22px}
+.logo{width:52px;height:52px;margin:0 auto 10px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--acc),#6366f1)}
+h1{font-size:1.5rem;letter-spacing:-.02em}
+header p{color:var(--mut);font-size:.9rem;margin-top:4px}
+label{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 6px}
+.amt{display:flex;align-items:center;border:2px solid var(--line);border-radius:14px;padding:0 14px;background:var(--chip);transition:.2s}
+.amt:focus-within{border-color:var(--acc);box-shadow:0 0 0 4px rgba(5,150,105,.15)}
+.amt.bad{border-color:#ef4444}
+.amt b{color:var(--acc);font-size:1.1rem;margin-right:8px}
+#amount{flex:1;border:0;background:none;font-size:1.7rem;font-weight:700;padding:12px 0;color:var(--ink);outline:none;min-width:0}
+.chips{display:flex;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 12px;border-radius:99px;font-size:.82rem;cursor:pointer}
+.chips button:hover{border-color:var(--acc);color:var(--acc)}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end}
+.combo{position:relative}
+.combo>button{width:100%;display:flex;align-items:center;gap:7px;padding:12px;border:2px solid var(--line);border-radius:14px;background:var(--chip);color:var(--ink);cursor:pointer;font-size:.95rem;text-align:left}
+.combo>button:hover,.combo.open>button{border-color:var(--acc)}
+.combo>button span{color:var(--mut);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.combo i{width:9px;height:9px;border-radius:50%;flex:none}
+.menu{display:none;position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);background:var(--pop);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.25);overflow:hidden;min-width:250px}
+.combo.open .menu{display:block}
+.menu input{width:100%;border:0;border-bottom:1px solid var(--line);padding:12px;font-size:.95rem;background:none;color:var(--ink);outline:none}
+.menu ul{list-style:none;max-height:240px;overflow:auto;padding:4px}
+.menu li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:.9rem}
+.menu li:hover,.menu li.on{background:var(--chip)}
+.menu li span{flex:1;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu li small{color:var(--mut);font-size:.7rem}
+.menu li.none{color:var(--mut);cursor:default}
+#swap{width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;color:#fff;font-size:1.2rem;background:linear-gradient(135deg,var(--acc),var(--acc2));transition:transform .4s;margin-bottom:2px}
+#swap:hover{box-shadow:0 6px 16px rgba(5,150,105,.45)}
+.result{margin-top:22px;padding:22px;border-radius:18px;background:var(--res);text-align:center;border:1px solid rgba(5,150,105,.25)}
+.result small{color:var(--mut);font-size:.9rem}
+#out{font-size:2.3rem;font-weight:800;color:var(--acc);margin:6px 0 2px;word-break:break-all;letter-spacing:-.02em}
+#outc{font-size:.85rem;color:var(--mut)}
+.rates{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.rates span{background:var(--pop);border:1px solid var(--line);padding:5px 12px;border-radius:99px;font-size:.8rem}
+#copy{margin-top:14px;border:0;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:10px 22px;border-radius:12px;font-weight:600;cursor:pointer}
+h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:22px 0 10px}
+#pop{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#pop button{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:12px;padding:10px 6px;cursor:pointer;text-align:center}
+#pop button:hover{border-color:var(--acc)}
+#pop b{display:block;font-size:.78rem;color:var(--mut)}
+#pop span{font-weight:700;font-size:.9rem;word-break:break-all}
+footer{margin-top:20px;text-align:center;font-size:.76rem;color:var(--mut);line-height:1.5}
+@media(max-width:480px){.pair{grid-template-columns:1fr}#swap{justify-self:center;margin:2px 0;transform:rotate(90deg)}.card{padding:20px}#out{font-size:1.8rem}}
+</style>
+</head>
+<body>
+<main class="card">
+  <header>
+    <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4M21 7H8M7 21l-4-4 4-4M3 17h13"/></svg></div>
+    <h1>World Currency Converter</h1>
+    <p id="sub"></p>
+  </header>
+
+  <label for="amount">Amount</label>
+  <div class="amt" id="amtBox"><b id="cur">INR</b><input id="amount" inputmode="decimal" value="1000" autocomplete="off"></div>
+  <div class="chips"><button data-v="100">100</button><button data-v="1000">1,000</button><button data-v="10000">10,000</button><button data-v="100000">1,00,000</button></div>
+
+  <div class="pair">
+    <div><label>From</label><div class="combo" id="cf"><button type="button"></button><div class="menu"><input placeholder="Search code or name..."><ul></ul></div></div></div>
+    <button id="swap" title="Swap currencies" aria-label="Swap currencies">&#8644;</button>
+    <div><label>To</label><div class="combo" id="ct"><button type="button"></button><div class="menu"><input placeholder="Search code or name..."><ul></ul></div></div></div>
+  </div>
+
+  <section class="result">
+    <small id="line">&nbsp;</small>
+    <div id="out">--</div>
+    <div id="outc">&nbsp;</div>
+    <div class="rates"><span id="rate"></span><span id="inv"></span></div>
+    <button id="copy">Copy result</button>
+  </section>
+
+  <h2>Same amount in popular currencies</h2>
+  <div id="pop"></div>
+
+  <footer>Live mid-market rates when online, otherwise the saved snapshot shown above.<br>Indicative rates, not for trading. Data: open currency-api.</footer>
+</main>
+
+<script>
+/* OFFLINE FALLBACK RATES: [code, name, region, units per 1 USD]. Generated from src/rates.h. Replaced by live rates when online. */
+const R=[
+["USD", "US Dollar", "Americas", 1.0],
+["CAD", "Canadian Dollar", "Americas", 1.3986],
+["MXN", "Mexican Peso", "Americas", 18.6704],
+["BRL", "Brazilian Real", "Americas", 5.3466],
+["ARS", "Argentine Peso", "Americas", 1541.64],
+["CLP", "Chilean Peso", "Americas", 987.5754],
+["COP", "Colombian Peso", "Americas", 3167.6],
+["PEN", "Peruvian Sol", "Americas", 3.4492],
+["UYU", "Uruguayan Peso", "Americas", 40.162],
+["PYG", "Paraguayan Guarani", "Americas", 5773.93],
+["BOB", "Bolivian Boliviano", "Americas", 12.0113],
+["VES", "Venezuelan Bolivar", "Americas", 887.2864],
+["GYD", "Guyanese Dollar", "Americas", 209.2673],
+["SRD", "Surinamese Dollar", "Americas", 37.6552],
+["CRC", "Costa Rican Colon", "Americas", 454.617],
+["GTQ", "Guatemalan Quetzal", "Americas", 7.6401],
+["HNL", "Honduran Lempira", "Americas", 26.8571],
+["NIO", "Nicaraguan Cordoba", "Americas", 36.7767],
+["PAB", "Panamanian Balboa", "Americas", 1.0],
+["BZD", "Belize Dollar", "Americas", 2.0117],
+["DOP", "Dominican Peso", "Americas", 60.8645],
+["HTG", "Haitian Gourde", "Americas", 130.895],
+["JMD", "Jamaican Dollar", "Americas", 158.4941],
+["CUP", "Cuban Peso", "Americas", 23.9588],
+["TTD", "Trinidad & Tobago Dollar", "Americas", 6.7854],
+["BSD", "Bahamian Dollar", "Americas", 1.0],
+["BBD", "Barbadian Dollar", "Americas", 2.0],
+["XCD", "East Caribbean Dollar", "Americas", 2.7072],
+["AWG", "Aruban Florin", "Americas", 1.79],
+["ANG", "Netherlands Antillean Guilder", "Americas", 1.7999],
+["KYD", "Cayman Islands Dollar", "Americas", 0.831018],
+["BMD", "Bermudian Dollar", "Americas", 1.0],
+["EUR", "Euro", "Europe", 0.897394],
+["GBP", "British Pound", "Europe", 0.750769],
+["CHF", "Swiss Franc", "Europe", 0.828867],
+["SEK", "Swedish Krona", "Europe", 9.9117],
+["NOK", "Norwegian Krone", "Europe", 9.2573],
+["DKK", "Danish Krone", "Europe", 6.707],
+["ISK", "Icelandic Krona", "Europe", 121.8623],
+["PLN", "Polish Zloty", "Europe", 3.9494],
+["CZK", "Czech Koruna", "Europe", 21.8656],
+["HUF", "Hungarian Forint", "Europe", 329.2521],
+["RON", "Romanian Leu", "Europe", 4.8015],
+["BGN", "Bulgarian Lev", "Europe", 1.7551],
+["RSD", "Serbian Dinar", "Europe", 105.494],
+["BAM", "Bosnia-Herzegovina Mark", "Europe", 1.7551],
+["MKD", "Macedonian Denar", "Europe", 55.2262],
+["ALL", "Albanian Lek", "Europe", 81.5298],
+["MDL", "Moldovan Leu", "Europe", 17.9883],
+["UAH", "Ukrainian Hryvnia", "Europe", 45.536],
+["BYN", "Belarusian Ruble", "Europe", 2.9424],
+["RUB", "Russian Ruble", "Europe", 80.4945],
+["GEL", "Georgian Lari", "Europe", 2.5932],
+["AMD", "Armenian Dram", "Europe", 358.7526],
+["AZN", "Azerbaijani Manat", "Europe", 1.7],
+["GIP", "Gibraltar Pound", "Europe", 0.750769],
+["JEP", "Jersey Pound", "Europe", 0.750769],
+["IMP", "Manx Pound", "Europe", 0.750769],
+["INR", "Indian Rupee", "Asia", 95.2592],
+["PKR", "Pakistani Rupee", "Asia", 276.3353],
+["BDT", "Bangladeshi Taka", "Asia", 124.0367],
+["LKR", "Sri Lankan Rupee", "Asia", 332.1994],
+["NPR", "Nepalese Rupee", "Asia", 152.4862],
+["BTN", "Bhutanese Ngultrum", "Asia", 95.2592],
+["MVR", "Maldivian Rufiyaa", "Asia", 15.4591],
+["AFN", "Afghan Afghani", "Asia", 64.7232],
+["CNY", "Chinese Yuan", "Asia", 6.6623],
+["JPY", "Japanese Yen", "Asia", 157.8581],
+["KRW", "South Korean Won", "Asia", 1336.07],
+["KPW", "North Korean Won", "Asia", 899.9431],
+["HKD", "Hong Kong Dollar", "Asia", 7.8454],
+["TWD", "New Taiwan Dollar", "Asia", 32.5611],
+["MOP", "Macanese Pataca", "Asia", 8.0808],
+["MNT", "Mongolian Tugrik", "Asia", 3601.49],
+["SGD", "Singapore Dollar", "Asia", 1.2805],
+["MYR", "Malaysian Ringgit", "Asia", 4.0641],
+["THB", "Thai Baht", "Asia", 33.7425],
+["IDR", "Indonesian Rupiah", "Asia", 18116.73],
+["PHP", "Philippine Peso", "Asia", 63.855],
+["VND", "Vietnamese Dong", "Asia", 25836.19],
+["KHR", "Cambodian Riel", "Asia", 4077.61],
+["LAK", "Lao Kip", "Asia", 22510.75],
+["MMK", "Myanmar Kyat", "Asia", 2099.85],
+["BND", "Brunei Dollar", "Asia", 1.2805],
+["KZT", "Kazakhstani Tenge", "Asia", 455.2715],
+["UZS", "Uzbekistani Som", "Asia", 12003.24],
+["KGS", "Kyrgyzstani Som", "Asia", 87.4602],
+["TJS", "Tajikistani Somoni", "Asia", 9.2004],
+["TMT", "Turkmenistani Manat", "Asia", 3.5095],
+["AED", "UAE Dirham", "Middle East", 3.6725],
+["SAR", "Saudi Riyal", "Middle East", 3.75],
+["QAR", "Qatari Riyal", "Middle East", 3.64],
+["KWD", "Kuwaiti Dinar", "Middle East", 0.311044],
+["BHD", "Bahraini Dinar", "Middle East", 0.376],
+["OMR", "Omani Rial", "Middle East", 0.384903],
+["JOD", "Jordanian Dinar", "Middle East", 0.709],
+["ILS", "Israeli New Shekel", "Middle East", 3.1195],
+["TRY", "Turkish Lira", "Middle East", 49.8381],
+["IQD", "Iraqi Dinar", "Middle East", 1514.93],
+["IRR", "Iranian Rial", "Middle East", 1864532.1],
+["LBP", "Lebanese Pound", "Middle East", 90239.18],
+["SYP", "Syrian Pound", "Middle East", 13001.18],
+["YER", "Yemeni Rial", "Middle East", 236.1364],
+["ZAR", "South African Rand", "Africa", 16.6117],
+["NGN", "Nigerian Naira", "Africa", 1345.46],
+["EGP", "Egyptian Pound", "Africa", 56.115],
+["KES", "Kenyan Shilling", "Africa", 129.9431],
+["GHS", "Ghanaian Cedi", "Africa", 11.635],
+["TZS", "Tanzanian Shilling", "Africa", 2645.62],
+["UGX", "Ugandan Shilling", "Africa", 4354.12],
+["ETB", "Ethiopian Birr", "Africa", 163.0387],
+["MAD", "Moroccan Dirham", "Africa", 9.851],
+["DZD", "Algerian Dinar", "Africa", 135.2537],
+["TND", "Tunisian Dinar", "Africa", 2.9944],
+["LYD", "Libyan Dinar", "Africa", 6.4238],
+["SDG", "Sudanese Pound", "Africa", 600.1755],
+["SSP", "South Sudanese Pound", "Africa", 5745.2],
+["ZMW", "Zambian Kwacha", "Africa", 20.1695],
+["ZWG", "Zimbabwe Gold", "Africa", 26.8354],
+["BWP", "Botswana Pula", "Africa", 13.8043],
+["NAD", "Namibian Dollar", "Africa", 16.6117],
+["SZL", "Eswatini Lilangeni", "Africa", 16.6117],
+["LSL", "Lesotho Loti", "Africa", 16.6117],
+["MZN", "Mozambican Metical", "Africa", 63.8635],
+["AOA", "Angolan Kwanza", "Africa", 918.0861],
+["MWK", "Malawian Kwacha", "Africa", 1731.56],
+["MGA", "Malagasy Ariary", "Africa", 4569.35],
+["MUR", "Mauritian Rupee", "Africa", 47.4661],
+["SCR", "Seychellois Rupee", "Africa", 14.7302],
+["XOF", "West African CFA Franc", "Africa", 588.6516],
+["XAF", "Central African CFA Franc", "Africa", 588.6516],
+["CDF", "Congolese Franc", "Africa", 2314.49],
+["RWF", "Rwandan Franc", "Africa", 1477.2],
+["BIF", "Burundian Franc", "Africa", 2998.74],
+["DJF", "Djiboutian Franc", "Africa", 178.3061],
+["KMF", "Comorian Franc", "Africa", 441.4887],
+["ERN", "Eritrean Nakfa", "Africa", 15.0],
+["SOS", "Somali Shilling", "Africa", 571.4439],
+["GMD", "Gambian Dalasi", "Africa", 74.1362],
+["GNF", "Guinean Franc", "Africa", 8840.74],
+["SLE", "Sierra Leonean Leone", "Africa", 22.92],
+["LRD", "Liberian Dollar", "Africa", 170.5928],
+["CVE", "Cape Verdean Escudo", "Africa", 98.9556],
+["STN", "Sao Tome & Principe Dobra", "Africa", 22.1537],
+["MRU", "Mauritanian Ouguiya", "Africa", 40.4245],
+["AUD", "Australian Dollar", "Oceania", 1.4175],
+["NZD", "New Zealand Dollar", "Oceania", 1.7789],
+["FJD", "Fijian Dollar", "Oceania", 2.242],
+["PGK", "Papua New Guinean Kina", "Oceania", 4.4608],
+["WST", "Samoan Tala", "Oceania", 2.7599],
+["TOP", "Tongan Pa'anga", "Oceania", 2.408],
+["VUV", "Vanuatu Vatu", "Oceania", 119.6585],
+["SBD", "Solomon Islands Dollar", "Oceania", 8.0504],
+["XPF", "CFP Franc", "Oceania", 107.0875]
+];
+const M=Object.fromEntries(R.map(r=>[r[0],r]));
+const COL={"Americas":"#22c55e","Europe":"#3b82f6","Asia":"#eab308","Middle East":"#a855f7","Africa":"#ef4444","Oceania":"#06b6d4"};
+const $=s=>document.querySelector(s);
+let from="INR",to="USD";
+const conv=(a,f,t)=>a/M[f][3]*M[t][3];
+const nf=(v,d)=>v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const money=v=>nf(v,Math.abs(v)>=1||v===0?2:6);
+const rt=v=>nf(v,v>=100?2:v>=1?4:6);
+const SNAP="2026-10-29";
+$("#sub").textContent=R.length+" currencies · offline rates of "+SNAP;
+async function live(){
+  const urls=["https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json","https://latest.currency-api.pages.dev/v1/currencies/usd.json"];
+  for(const u of urls){
+    try{
+      const r=await fetch(u,{cache:"no-store"});if(!r.ok)continue;
+      const j=await r.json();let n=0;
+      R.forEach(x=>{const v=j.usd&&j.usd[x[0].toLowerCase()];if(v>0){x[3]=v;n++}});
+      if(n>100){$("#sub").textContent=R.length+" currencies · live rates · "+j.date;update();return}
+    }catch(_){}
+  }
+}
+
+function combo(el,get,set){
+  const btn=el.querySelector("button"),menu=el.querySelector(".menu"),inp=menu.querySelector("input"),list=menu.querySelector("ul");
+  const dot=r=>`<i style="background:${COL[r[2]]}"></i>`;
+  function fill(q){
+    q=q.toLowerCase();
+    list.innerHTML=R.filter(r=>r[0].toLowerCase().includes(q)||r[1].toLowerCase().includes(q))
+      .map(r=>`<li data-c="${r[0]}"${r[0]===get()?' class="on"':''}>${dot(r)}<b>${r[0]}</b><span>${r[1]}</span><small>${r[2]}</small></li>`).join("")||'<li class="none">No match</li>';
+  }
+  const pick=c=>{set(c);el.classList.remove("open")};
+  btn.onclick=e=>{
+    e.stopPropagation();
+    document.querySelectorAll(".combo").forEach(x=>x!==el&&x.classList.remove("open"));
+    if(el.classList.toggle("open")){inp.value="";fill("");inp.focus();const on=list.querySelector(".on");if(on)list.scrollTop=on.offsetTop-90}
+  };
+  menu.onclick=e=>e.stopPropagation();
+  list.onclick=e=>{const li=e.target.closest("li[data-c]");if(li)pick(li.dataset.c)};
+  inp.oninput=()=>fill(inp.value);
+  inp.onkeydown=e=>{if(e.key==="Escape")el.classList.remove("open");if(e.key==="Enter"){const li=list.querySelector("li[data-c]");if(li)pick(li.dataset.c)}};
+  return ()=>{const r=M[get()];btn.innerHTML=`${dot(r)}<b>${r[0]}</b><span>${r[1]}</span>`};
+}
+const paintF=combo($("#cf"),()=>from,c=>{from=c;update()});
+const paintT=combo($("#ct"),()=>to,c=>{to=c;update()});
+document.addEventListener("click",()=>document.querySelectorAll(".combo").forEach(x=>x.classList.remove("open")));
+
+function amount(){const v=parseFloat($("#amount").value.replace(/,/g,""));return isFinite(v)&&v>0&&v<=1e12?v:NaN}
+
+function update(){
+  paintF();paintT();
+  $("#cur").textContent=from;
+  const a=amount(),ok=!isNaN(a);
+  $("#amtBox").classList.toggle("bad",!ok&&$("#amount").value.trim()!=="");
+  $("#rate").textContent=`1 ${from} = ${rt(conv(1,from,to))} ${to}`;
+  $("#inv").textContent=`1 ${to} = ${rt(conv(1,to,from))} ${from}`;
+  if(!ok){$("#out").textContent="--";$("#line").innerHTML="Enter a positive amount";$("#outc").innerHTML="&nbsp;";$("#pop").innerHTML="";return}
+  $("#line").textContent=`${money(a)} ${from} =`;
+  $("#out").textContent=money(conv(a,from,to))+" "+to;
+  $("#outc").textContent=M[to][1];
+  const P=["USD","EUR","GBP","JPY","AED","CAD","AUD","SGD","INR"].filter(c=>c!==from).slice(0,6);
+  $("#pop").innerHTML=P.map(c=>`<button data-c="${c}"><b>${c}</b><span>${money(conv(a,from,c))}</span></button>`).join("");
+}
+
+$("#amount").oninput=update;
+document.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>{$("#amount").value=b.dataset.v;update()});
+$("#pop").onclick=e=>{const b=e.target.closest("button[data-c]");if(b){to=b.dataset.c;update()}};
+$("#swap").onclick=e=>{[from,to]=[to,from];const s=e.currentTarget;s.style.transform+=" rotate(180deg)";update()};
+$("#copy").onclick=async e=>{
+  const t=$("#line").textContent+" "+$("#out").textContent;
+  try{await navigator.clipboard.writeText(t);e.target.textContent="Copied!"}catch(_){e.target.textContent="Press Ctrl+C"}
+  setTimeout(()=>e.target.textContent="Copy result",1400);
+};
+update();
+live();
+</script>
+</body>
+</html>
