@@ -3,7 +3,7 @@
 # 💱 World Currency Converter
 
 **A beautiful, colourful terminal currency converter written in pure C.**
-154 currencies · real rates snapshot (2026-10-29) · works 100% offline
+154 currencies · real rates snapshot (2026-11-01) · works 100% offline
 
 ![Language](https://img.shields.io/badge/language-C99-00599C?logo=c&logoColor=white)
 ![Currencies](https://img.shields.io/badge/currencies-154-brightgreen)
@@ -14,7 +14,7 @@
 
 ---
 
-> ℹ️ **About the rates** — the C program uses a **snapshot of real exchange rates taken on 2026-10-29**
+> ℹ️ **About the rates** — the C program uses a **snapshot of real exchange rates taken on 2026-11-01**
 > (open currency-api data), stored in [`src/rates.h`](src/rates.h). Rates change every day, so this is
 > **not live data** and must not be used for real financial decisions. The web version fetches live rates when online.
 
@@ -38,7 +38,7 @@
   ╔══════════════════════════════════════════════════════════════╗
   ║                                                              ║
   ║       W O R L D   C U R R E N C Y   C O N V E R T E R        ║
-  ║      154 currencies  |  rates of 2026-10-29  |  works offline   ║
+  ║      154 currencies  |  rates of 2026-11-01  |  works offline   ║
   ║                                                              ║
   ╚══════════════════════════════════════════════════════════════╝
 
@@ -49,11 +49,11 @@
   │   1,000.00 USD                                               │
   │       |                                                      │
   │       v                                                      │
-  │   95,259.21 INR                                              │
+  │   95,006.90 INR                                              │
   │                                                              │
   ├──────────────────────────────────────────────────────────────┤
-  │ Rate used : 1 USD = 95.2592 INR                              │
-  │ Inverse   : 1 INR = 0.010498 USD                             │
+  │ Rate used : 1 USD = 95.0069 INR                              │
+  │ Inverse   : 1 INR = 0.010526 USD                             │
   │ US Dollar -> Indian Rupee                                    │
   └──────────────────────────────────────────────────────────────┘
 ```
@@ -100,10 +100,10 @@ To convert between *any* two currencies the program goes through USD:
 result = amount ÷ rate_from × rate_to
 ```
 
-Example: 50 EUR → INR with `EUR = 0.8974` and `INR = 95.2592`
+Example: 50 EUR → INR with `EUR = 0.892533` and `INR = 95.0069`
 
 ```text
-50 ÷ 0.8974 × 95.2592 ≈ 5,307.55 INR
+50 ÷ 0.892533 × 95.0069 ≈ 5,322.32 INR
 ```
 
 One table of 154 numbers therefore supports **23,562 currency pairs**.
@@ -114,7 +114,7 @@ One table of 154 numbers therefore supports **23,562 currency pairs**.
 last number, then rebuild:
 
 ```c
-{"INR", "Indian Rupee", REG_ASIA, 95.2592},   /* 1 USD = 95.26 INR */
+{"INR", "Indian Rupee", REG_ASIA, 95.0069},   /* 1 USD = 95.01 INR */
 ```
 
 **Temporarily (while running)** — choose **`[6] Change a rate`** from the menu. Changed
