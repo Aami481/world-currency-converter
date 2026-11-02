@@ -179,10 +179,10 @@ function status(){
 }
 async function live(){
   $("#refresh").disabled=true;$("#refresh").textContent="Refreshing…";
-  for(const u of["https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json","https://latest.currency-api.pages.dev/v1/currencies/usd.json"]){
+for(const u of["https://open.er-api.com/v6/latest/USD","https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json","https://latest.currency-api.pages.dev/v1/currencies/usd.json"]){
     try{
       const r=await fetch(u,{cache:"no-store"});if(!r.ok)continue;
-      const j=await r.json(),L={};let n=0;
+      const j=await r.json(),L={};let n=0;if(j.rates){j.usd=Object.fromEntries(Object.entries(j.rates).map(([k,v])=>[k.toLowerCase(),v]));j.date=(j.time_last_update_utc||"").slice(5,16)}
       D.forEach(x=>{const v=j.usd&&j.usd[x[0].toLowerCase()];if(v>0&&isFinite(v)){L[x[0]]=v;n++}});
       if(n>100){st.live=L;st.date=j.date;st.net="live";save();break}
     }catch(_){}
